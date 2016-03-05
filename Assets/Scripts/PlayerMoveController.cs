@@ -6,19 +6,26 @@ public class PlayerMoveController : NetworkBehaviour
 {
 	public Vector3 startPosition;
 
-	// Use this for initialization
-	void Start () {
-		transform.Translate(startPosition);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		if (!isLocalPlayer)
-			return;
-		
-		var x = Input.GetAxis("Horizontal")*0.1f;
-		var z = Input.GetAxis("Vertical")*0.1f;
+    // Movement
+    [SyncVar]
+    protected float deltaX = 0.0f,
+                    deltaZ = 0.0f;
+    
+    // Use this for initialization
+    public override void OnStartLocalPlayer()
+    {
+        transform.Translate(startPosition);
+        GetComponent<MeshRenderer>().material.color = Color.red;
+    }
 
-		transform.Translate(x, 0, z);
+    // Update is called once per frame
+    void Update () {
+        if (isLocalPlayer)
+        {
+            deltaX = Input.GetAxis("Horizontal") * 0.1f;
+            deltaZ = Input.GetAxis("Vertical") * 0.1f;
+        }
+
+		transform.Translate(deltaX, 0, deltaZ);
 	}
 }
