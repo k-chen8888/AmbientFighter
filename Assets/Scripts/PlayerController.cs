@@ -17,8 +17,7 @@ public class PlayerController : NetworkBehaviour {
 	string[] combatCommands = { "Basic", "Strong", "Evade", "Grab", "Combo" };
 
 	// Information about the player, synchronized across all clients
-	[SyncVar]
-	private PlayerState state;
+	[SyncVar] PlayerState state;
 
 
 	/* Instantiation through MonoBehaviour */
@@ -26,12 +25,17 @@ public class PlayerController : NetworkBehaviour {
 	void Awake () {
 		InitState ();
 	}
+
+	void Start()
+	{
+		SyncState ();
+	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (isLocalPlayer) {
 			foreach (string input in moveCommands) {
-				CmdMove (input);
+				CmdMove (input, Input.GetAxis (input));
 			}
 		}
 
@@ -41,38 +45,41 @@ public class PlayerController : NetworkBehaviour {
 
 	/* Helper methods for playing the game */
 
+	// Handles movement on the server
+	[Command] void CmdMove(string movement, float val)
+	{
+		state = Move (state, movement, val);
+	}
+	
 	// Set the initial state of the player
-	[Server]
-	void InitState () {
+	[Server] void InitState () {
 		state = new PlayerState {
 			x = 0.0f,
 			z = 0.0f
 		};
 	}
 
-	// Handles movement on the server
-	[Command]
-	void CmdMove(string movement)
+	PlayerState Move(PlayerState curr, string movement, float val)
 	{
 		float deltaX = 0.0f,
 			  deltaZ = 0.0f;
 
 		switch (movement) {
 			case "Horizontal":
-				deltaX = Input.GetAxis (movement);
+				deltaX = val;
 				break;
 
 			case "Vertical":
-				deltaZ = Input.GetAxis (movement);
+				deltaZ = val;
 				break;
 
 			default:
 				break;
 		}
 
-		state = new PlayerState {
-			x = deltaX + state.x,
-			z = deltaZ + state.z
+		return new PlayerState {
+			x = deltaX + curr.x,
+			z = deltaZ + curr.z
 		};
 	}
 
