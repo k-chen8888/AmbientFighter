@@ -13,8 +13,10 @@ public class PlayerController : NetworkBehaviour {
 	/* Fields */
 
 	// Controls
-	string[] moveCommands = { "Horizontal", "Vertical" };
-	string[] combatCommands = { "Basic", "Strong", "Evade", "Grab", "Combo" };
+	private enum MoveInfo {UD, LR};
+	private enum FightInfo { BASIC, STRONG, EVADE, GRAB, COMBO };
+	public string[] moveCommands = { "Horizontal", "Vertical" };
+	public string[] combatCommands = { "Basic", "Strong", "Evade", "Grab", "Combo" };
 
 	// Information about the player, synchronized across all clients
 	[SyncVar] PlayerState state;
@@ -35,7 +37,8 @@ public class PlayerController : NetworkBehaviour {
 	void Update () {
 		if (isLocalPlayer) {
 			foreach (string input in moveCommands) {
-				CmdMove (input, Input.GetAxis (input));
+				float val = Input.GetAxis (input);
+				CmdMove (input, val);
 			}
 		}
 
