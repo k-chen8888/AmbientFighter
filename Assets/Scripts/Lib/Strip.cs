@@ -19,7 +19,7 @@ public class Strip : MonoBehaviour
 
 
     // Happens on initialization
-    void Awake()
+    protected void Init()
     {
         // Get a reference to the Blackboard when this script starts up
         bb = blackBoard.GetComponent<BlackBoard>();
