@@ -224,9 +224,11 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'F to Begin
+  m_Text: 'Z to Begin
 
-    S for Skill Tree
+    X for Skill Tree
+
+    A for Alt Skill Tree
 
     Esc to Quit'
 --- !u!222 &884623217

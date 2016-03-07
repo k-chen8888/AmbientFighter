@@ -11,3 +11,5 @@ EditorBuildSettings:
     path: Assets/Arena.unity
   - enabled: 1
     path: Assets/SkillEditor.unity
+  - enabled: 1
+    path: Assets/SkillTree.unity

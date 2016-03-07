@@ -10,7 +10,7 @@ public class ReturnMenuScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKeyDown (KeyCode.M)) {
+		if (Input.GetKeyDown (KeyCode.Q)) {
 			Application.LoadLevel ("Menu");
 		}
 	}
