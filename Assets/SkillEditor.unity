@@ -99,7 +99,7 @@ GameObject:
   - 114: {fileID: 235014043}
   m_Layer: 0
   m_Name: Skill1
-  m_TagString: Base
+  m_TagString: Node
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -337,7 +337,7 @@ GameObject:
   - 114: {fileID: 1319263767}
   m_Layer: 0
   m_Name: Skill2
-  m_TagString: Base
+  m_TagString: Node
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -503,7 +503,7 @@ GameObject:
   - 114: {fileID: 1654728660}
   m_Layer: 0
   m_Name: Skill3
-  m_TagString: Base
+  m_TagString: Node
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -594,7 +594,7 @@ GameObject:
   - 114: {fileID: 1706272681}
   m_Layer: 0
   m_Name: Skill0
-  m_TagString: Base
+  m_TagString: Node
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

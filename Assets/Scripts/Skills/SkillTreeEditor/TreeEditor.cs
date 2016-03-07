@@ -49,17 +49,10 @@ public class TreeEditor : MonoBehaviour {
     void OnMouseUp()
     {
         // Reset if a line wasn't drawn and the object is not in the bank
-        if (!CanDrawLine() && transform.position.y >= skillBankLine)
+        if (!(CanDrawLine(Vector2.up) || CanDrawLine(Vector2.left) || CanDrawLine(Vector2.right)) && transform.position.y >= skillBankLine)
         {
             // Clear out lines
-            for (int i = 0; i < lines.Length; i++)
-            {
-                if (lines[i] != null)
-                {
-                    GameObject.Destroy(lines[i]);
-                    lines[i] = null;
-                }
-            }
+            ClearLines();
 
             transform.position = startPos;
         }
@@ -68,31 +61,25 @@ public class TreeEditor : MonoBehaviour {
 
     /* Draw lines between skill tree nodes to indicate links
      */
-    bool CanDrawLine()
+    bool CanDrawLine(Vector2 direction)
     {
         // Find a target in range
         RaycastHit hit;
         
-        if (Physics.Raycast(transform.position, Vector2.up, out hit, maxDistance: linkRange))
+        if (Physics.Raycast(transform.position, direction, out hit, maxDistance: linkRange))
         {
-            if (hit.transform.gameObject.tag == baseTag || hit.transform.gameObject.tag == nodeTag)
+            if (direction == Vector2.up && (hit.transform.gameObject.tag == baseTag || hit.transform.gameObject.tag == nodeTag))
             {
                 StartCoroutine(DrawLine(transform.position, hit.transform.position, Color.red, 0));
                 return true;
             }
-        }
-        else if (Physics.Raycast(transform.position, Vector2.left, out hit, maxDistance: linkRange))
-        {
-            if (hit.transform.gameObject.tag == nodeTag)
+            else if(direction == Vector2.left && hit.transform.gameObject.tag == nodeTag)
             {
                 // Firing a ray to the left and hitting means that this is a right child
                 StartCoroutine(DrawLine(transform.position, hit.transform.position, Color.red, 2));
                 return true;
             }
-        }
-        else if (Physics.Raycast(transform.position, Vector2.right, out hit, maxDistance: linkRange))
-        {
-            if (hit.transform.gameObject.tag == nodeTag)
+            else if (direction == Vector2.right && hit.transform.gameObject.tag == nodeTag)
             {
                 // Firing a ray to the right and hitting means that this is a left child
                 StartCoroutine(DrawLine(transform.position, hit.transform.position, Color.red, 1));
@@ -105,11 +92,7 @@ public class TreeEditor : MonoBehaviour {
 
     IEnumerator DrawLine(Vector3 start, Vector3 end, Color color, int position)
     {
-        if (lines[position] != null)
-        {
-            GameObject.Destroy(lines[position]);
-            lines[position] = null;
-        }
+        ClearLines();
 
         lines[position] = new GameObject();
         lines[position].transform.position = start;
@@ -120,5 +103,17 @@ public class TreeEditor : MonoBehaviour {
         lr.SetPosition(0, start);
         lr.SetPosition(1, end);
         yield return null;
+    }
+
+    void ClearLines()
+    {
+        for (int i = 0; i < lines.Length; i++)
+        {
+            if (lines[i] != null)
+            {
+                GameObject.Destroy(lines[i]);
+                lines[i] = null;
+            }
+        }
     }
 }
