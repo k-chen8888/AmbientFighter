@@ -21,7 +21,7 @@ public class PlayerController : NetworkBehaviour {
 
 	// Information about the player, synchronized across all clients
 	[SyncVar(hook = "OnServerStateChanged")] PlayerState state;
-	Queue<string> pendingMoves;
+	Queue pendingMoves;
 	PlayerState predictedState;
 
 	/* Instantiation through MonoBehaviour */
@@ -33,7 +33,7 @@ public class PlayerController : NetworkBehaviour {
 	void Start()
 	{
 		if (isLocalPlayer) {
-			pendingMoves = new Queue<string> ();
+			pendingMoves = new Queue();
 			UpdatePredictedState ();
 		}
 		SyncState (true);
@@ -87,11 +87,13 @@ public class PlayerController : NetworkBehaviour {
 			default:
 				break;
 		}
-		int newX = deltaX + curr.x;
-		int newZ = deltaZ + curr.z;
+		float newX = deltaX + curr.x;
+		float newZ = deltaZ + curr.z;
 		return new PlayerState {
-			x = newX < 0 ? 0 : newX >= maxX ? (maxX - 1) : newX,
-			z = newZ < 0 ? 0 : newZ >= maxZ ? (maxZ - 1) : newZ
+			//x = newX < 0 ? 0 : newX >= maxX ? (maxX - 1) : newX,
+			//z = newZ < 0 ? 0 : newZ >= maxZ ? (maxZ - 1) : newZ
+			x = newX,
+			z = newZ
 		};
 	}
 
@@ -121,8 +123,8 @@ public class PlayerController : NetworkBehaviour {
 		}
 	}
 
-	int maxX = 5;
-	int maxZ = 5;
+	int maxX = 50;
+	int maxZ = 50;
 	float easing = 0.1f;
-	float spacing = 1.0f;
+	float spacing = 0.1f;
 }
