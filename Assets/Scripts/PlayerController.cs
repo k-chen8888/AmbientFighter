@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 public class PlayerController : NetworkBehaviour {
 	// Information about the player
 	struct PlayerState {
+		public int moveNum;
 		public float x;
 		public float z;
 	}
@@ -19,8 +20,9 @@ public class PlayerController : NetworkBehaviour {
 	public string[] combatCommands = { "Basic", "Strong", "Evade", "Grab", "Combo" };
 
 	// Information about the player, synchronized across all clients
-	[SyncVar] PlayerState state;
-
+	[SyncVar(hook = "OnServerStateChanged")] PlayerState state;
+	Queue<string> pendingMoves;
+	PlayerState predictedState;
 
 	/* Instantiation through MonoBehaviour */
 
@@ -30,7 +32,11 @@ public class PlayerController : NetworkBehaviour {
 
 	void Start()
 	{
-		SyncState ();
+		if (isLocalPlayer) {
+			pendingMoves = new Queue<string> ();
+			UpdatePredictedState ();
+		}
+		SyncState (true);
 	}
 	
 	// Update is called once per frame
@@ -38,11 +44,13 @@ public class PlayerController : NetworkBehaviour {
 		if (isLocalPlayer) {
 			foreach (string input in moveCommands) {
 				float val = Input.GetAxis (input);
+				pendingMoves.Enqueue (input);
+				UpdatePredictedState ();
 				CmdMove (input, val);
 			}
 		}
 
-		SyncState ();
+		SyncState (false);
 	}
 
 
@@ -79,16 +87,42 @@ public class PlayerController : NetworkBehaviour {
 			default:
 				break;
 		}
-
+		int newX = deltaX + curr.x;
+		int newZ = deltaZ + curr.z;
 		return new PlayerState {
-			x = deltaX + curr.x,
-			z = deltaZ + curr.z
+			x = newX < 0 ? 0 : newX >= maxX ? (maxX - 1) : newX,
+			z = newZ < 0 ? 0 : newZ >= maxZ ? (maxZ - 1) : newZ
 		};
 	}
 
-	// Synchronizes state across clients
-	void SyncState()
-	{
-		transform.position = new Vector3 (state.x, 0, state.z);
+	void OnServerStateChanged (PlayerState newState) {
+		state = newState;
+		if (pendingMoves != null) {
+			while (pendingMoves.Count > (predictedState.moveNum - state.moveNum)) {
+				pendingMoves.Dequeue ();
+			}
+			UpdatePredictedState ();
+		}
 	}
+
+	// Synchronizes state across clients
+	void SyncState(bool init)
+	{
+		PlayerState stateToRender = isLocalPlayer ? predictedState : state;
+		Vector3 target = spacing * (stateToRender.x * Vector3.right + stateToRender.z * Vector3.forward);
+		transform.position = init ? target : Vector3.Lerp (transform.position, target, easing); 
+	}
+
+	void UpdatePredictedState() {
+		predictedState = state;
+		foreach (string input in pendingMoves) {
+			float val = Input.GetAxis (input);
+			predictedState = Move (predictedState, input, val);
+		}
+	}
+
+	int maxX = 5;
+	int maxZ = 5;
+	float easing = 0.1f;
+	float spacing = 1.0f;
 }
