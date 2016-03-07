@@ -15,10 +15,19 @@ public class Assist : Strip {
     // Action that occurs when this STRIP's conditions are met
     public override void Action(GameObject caller)
     {
-        
+        // Check preconditions and state
+
+        // Add the following conditions:
+        //  Cannot trigger again for a some amount of time
+        // 
+
+        // Perform some action, maybe change state
+
+        // Deferred-Add/Delete conditions from the BlackBoard
     }
 
 
-    /* Preconditions */
+    /* Preconditions
+     */
     
 }

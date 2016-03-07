@@ -13,7 +13,6 @@ using System.Collections.Generic;
  *      Grab: Automatically turn around
  *
  * Passives available:
- *  Assist: Scales a stun with probability and duration based on HP differential
  *  Favor: Chance to gain favor on hits
  */
 public class BehindMe : SkillTreeNode {
@@ -24,6 +23,8 @@ public class BehindMe : SkillTreeNode {
 
     // The SkillTree that this node is in
     private SkillTree move;
+
+    // Cooldowns on the ambient effects
 
 
     /* States
@@ -61,15 +62,20 @@ public class BehindMe : SkillTreeNode {
     }
 
 
+    /* The action changes state
+     */
+
+
     /* Utilities
      */
     // Override to add actual information to the BlackBoard
     protected override bool RegisterToBlackBoard()
     {
         // Get basic properties
-        List<string> properties = new List<string>
+        Dictionary<string, string> properties = new Dictionary<string, string>
         {
-            currState.ToString()
+            { "State", currState.ToString() },
+            { "NextState", nextState.ToString() }
         };
 
         // Attempt to register the object

@@ -13,4 +13,9 @@ public static class Constants {
     // A special parent value that marks a node as "root only"
     public static int ROOT_NODE = -1;
 
+
+    /* Ambient effects */
+
+    // Maximum values
+    public static int MAX_FAVOR = 100;
 }

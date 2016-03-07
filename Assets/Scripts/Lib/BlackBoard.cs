@@ -8,7 +8,7 @@ using System.Collections.Generic;
 public class BlackBoard : MonoBehaviour
 {
 	// Main dictionary that stores tuples as a name indexed to a List<string> of properties
-	private Dictionary<string, List<string>> flags = new Dictionary<string, List<string>>();
+	private Dictionary<string, Dictionary<string, string>> flags = new Dictionary<string, Dictionary<string, string>>();
 	
 	// A list of SmartObjects that can interact with each other
 	private Dictionary<string, GameObject> objects = new Dictionary<string, GameObject>();
@@ -17,7 +17,7 @@ public class BlackBoard : MonoBehaviour
 	/* Initialization
 	 */
 	// Adds a SmartObject or a key to a dictionary of objects, and adds all properties that the BlackBoard can manage to the dictionary of flags
-	public string Register(GameObject smartObj, List<string> properties, string key = null)
+	public string Register(GameObject smartObj, Dictionary<string, string> properties, string key = null)
 	{
         // Can't do anything if no object or key was given
         if (smartObj == null && key == null)
@@ -49,7 +49,7 @@ public class BlackBoard : MonoBehaviour
             }
         }
 	}
-    public string Register(string key, List<string> properties)
+    public string Register(string key, Dictionary<string, string> properties)
     {
         // Can't do anything if no object or key was given
         if (key == null)
@@ -75,14 +75,14 @@ public class BlackBoard : MonoBehaviour
     // Checks that a key exists in the dictionary
     public bool Exists(string key)
 	{
-		List<string> test;
+        Dictionary<string, string> test;
 		return flags.TryGetValue(key, out test);
 	}
 
     // Gets properties by key
-    public List<string> GetProperties(string key)
+    public Dictionary<string, string> GetProperties(string key)
     {
-        List<string> properties;
+        Dictionary<string, string> properties;
         if (flags.TryGetValue(key, out properties))
         {
             return properties;
@@ -92,9 +92,9 @@ public class BlackBoard : MonoBehaviour
     }
 
     // Update a property by key, index, and value
-    public bool UpdateProperty(string key, int index, string value)
+    public bool UpdateProperty(string key, string index, string value)
     {
-        List<string> properties;
+        Dictionary<string, string> properties;
         if (flags.TryGetValue(key, out properties))
         {
             properties[index] = value;
@@ -105,49 +105,53 @@ public class BlackBoard : MonoBehaviour
     }
 
     // Checks that a key maps to the given values
-    // Optionally, check if a portion of the values match (starting at start and going up to but not including end)
-    public bool IsMatch(string key, List<string> values, int start = 0, int end = -1)
+    // Specifically, goes through a dictionary of tuples and checks if either some of them (not strict) or all of them (strict) are there
+    public bool IsMatch(string key, Dictionary<string, string> values, bool strict = false)
 	{
-		List<string> test;
+        Dictionary<string, string> test;
 		if (flags.TryGetValue(key, out test))
 		{
-            int length = (end > -1 ? end - start : end);
-			if (length < 1 || length > test.Count || end > test.Count)
-				return false;
-			
-			for (int i = start; i < (end > -1 ? end : values.Count); i++)
-			{
-				if (test[i] != values[i])
-					return false;
-			}
-			
-			return true;
+            // When strict is enabled, fail to match if sizes are different
+            if (test.Count != values.Count && strict == true)
+                return false;
+
+            // Check that the values match
+            foreach (KeyValuePair<string, string> tuple in values)
+            {
+                if (test[tuple.Key] != tuple.Value)
+                    return false;
+            }
+
+            return true;
 		}
 		
 		return false;
 	}
 	
-	// Append properties to the List<string> at a given key
-	public bool AddProperty(string key, List<string> values)
+	// Add a single property at a given point in the dictionary
+	public bool AddProperty(string key, KeyValuePair<string, string> property)
 	{
-        List<string> properties;
+        Dictionary<string, string> properties;
         if (flags.TryGetValue(key, out properties))
         {
-            properties.AddRange(values);
-            return true;
+            if (!properties.ContainsKey(property.Key))
+            {
+                properties.Add(property.Key, property.Value);
+            }
+
+            return false;
         }
 
         return false;
     }
 
-    // Destructively remove a property at a given index, shifting everything after it forward by 1 index
-    // To non-destructively remove a property, use UpdateProperty(key, index, null) instead
-    public bool RemoveProperty(string key, int index)
+    // Remove a property
+    public bool RemoveProperty(string key, string index)
     {
-        List<string> properties;
+        Dictionary<string, string> properties;
         if (flags.TryGetValue(key, out properties))
         {
-            properties.RemoveAt(index);
+            properties.Remove(index);
             return true;
         }
 

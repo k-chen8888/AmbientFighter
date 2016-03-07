@@ -29,7 +29,7 @@ public class Strip : MonoBehaviour
     /* Essential methods for functionality
      */
     // Adds some extra properties to the BlackBoard to assist with interaction
-    protected bool RegisterToBlackBoard(List<string> values)
+    protected bool RegisterToBlackBoard(Dictionary<string, string> values)
     {
         // Returns true if the id was accepted and put into the dictionary
         return bb.Register(id, values) == id;
@@ -37,7 +37,7 @@ public class Strip : MonoBehaviour
     
     // Performs some action if the preconditions are satisfied
     // May change conditions
-    public virtual void Action(GameObject caller)
+    public virtual void Action(GameObject caller, string key = null)
     {
         // Check preconditions and state
 
