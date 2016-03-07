@@ -6,6 +6,7 @@ public class TreeEditor : MonoBehaviour {
     // Dragging and dropping skill tree nodes
     private Vector3 screenPoint;
     private Vector3 offset;
+    public string baseTag = "Base";
     public string nodeTag = "Node";
     private GameObject moving;
 
@@ -15,6 +16,7 @@ public class TreeEditor : MonoBehaviour {
     // Make a line to show that there is a link
     // Otherwise, reset the object to where it started
     private Vector3 startPos;
+    public float linkRange = 2.0f;
     private bool drawLine = false;
 
 
@@ -66,8 +68,31 @@ public class TreeEditor : MonoBehaviour {
 
     /* Draw lines between skill tree nodes to indicate links
      */
-    void DrawLine(GameObject moving, GameObject target)
+    void DrawLine(GameObject moving)
     {
+        // Find a target in range
+        RaycastHit hit;
 
+        if (Physics.Raycast(moving.transform.position, Vector2.up, out hit, maxDistance: linkRange))
+        {
+            if (hit.transform.gameObject.tag == baseTag || hit.transform.gameObject.tag == nodeTag)
+            {
+
+            }
+        }
+        else if (Physics.Raycast(moving.transform.position, Vector2.left, out hit, maxDistance: linkRange))
+        {
+            if (hit.transform.gameObject.tag == nodeTag)
+            {
+
+            }
+        }
+        else if (Physics.Raycast(moving.transform.position, Vector2.right, out hit, maxDistance: linkRange))
+        {
+            if (hit.transform.gameObject.tag == nodeTag)
+            {
+
+            }
+        }
     }
 }
