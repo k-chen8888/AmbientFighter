@@ -64,10 +64,18 @@ public class PlayerController : NetworkBehaviour {
 	
 	// Set the initial state of the player
 	[Server] void InitState () {
-		state = new PlayerState {
-			x = 0.0f,
-			z = 0.0f
-		};
+		GameObject temp = GameObject.Find ("PlayerWithHitbox(Clone)");
+		if (temp == null) {
+			state = new PlayerState {
+				x = 1.0f,
+				z = 0.0f
+			};
+		} else {
+			state = new PlayerState {
+				x = -1.0f,
+				z = 0.0f
+			};
+		}
 	}
 
 	PlayerState Move(PlayerState curr, string movement, float val)
@@ -90,8 +98,8 @@ public class PlayerController : NetworkBehaviour {
 		float newX = deltaX + curr.x;
 		float newZ = deltaZ + curr.z;
 		return new PlayerState {
-			//x = newX < 0 ? 0 : newX >= maxX ? (maxX - 1) : newX,
-			//z = newZ < 0 ? 0 : newZ >= maxZ ? (maxZ - 1) : newZ
+			//x = newX < -7 ? -7 : newX >= maxX ? (maxX - 1) : newX,
+			//z = newZ < -7 ? -7 : newZ >= maxZ ? (maxZ - 1) : newZ
 			x = newX,
 			z = newZ
 		};
@@ -123,8 +131,8 @@ public class PlayerController : NetworkBehaviour {
 		}
 	}
 
-	int maxX = 50;
-	int maxZ = 50;
+	int maxX = 7;
+	int maxZ = 7;
 	float easing = 0.1f;
 	float spacing = 0.1f;
 }
