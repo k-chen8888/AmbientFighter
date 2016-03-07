@@ -8,7 +8,6 @@ public class TreeEditor : MonoBehaviour {
     private Vector3 offset;
     public string baseTag = "Base";
     public string nodeTag = "Node";
-    private GameObject moving;
 
     // Objects past this point (y > line) are "in the tree" (and y < line is "not in the tree")
     public int skillBankLine = -5;
@@ -17,82 +16,109 @@ public class TreeEditor : MonoBehaviour {
     // Otherwise, reset the object to where it started
     private Vector3 startPos;
     public float linkRange = 2.0f;
-    private bool drawLine = false;
+    private GameObject[] lines = new GameObject[3] { null, null, null };
 
 
     // Use this for initialization
     void Start () {
-
+        startPos = transform.position;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
-	}
+
+    }
 
     
     /* Override mouse clicks to move skill tree nodes when they are clicked on
      */
     void OnMouseDown()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, 100))
-        {
-            moving = (hit.transform.gameObject.tag == nodeTag ? hit.transform.gameObject : null);
-            if (moving != null)
-                startPos = moving.transform.position;
-        }
-
         screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
         offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
     }
 
     void OnMouseDrag()
     {
-        if (moving != null)
-        {
-            Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
+        Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
 
-            Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
-            moving.transform.position = curPosition;
-        }
+        Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
+        transform.position = curPosition;
     }
 
     void OnMouseUp()
     {
-        moving = null;
+        // Reset if a line wasn't drawn and the object is not in the bank
+        if (!CanDrawLine() && transform.position.y >= skillBankLine)
+        {
+            // Clear out lines
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i] != null)
+                {
+                    GameObject.Destroy(lines[i]);
+                    lines[i] = null;
+                }
+            }
+
+            transform.position = startPos;
+        }
     }
 
 
     /* Draw lines between skill tree nodes to indicate links
      */
-    void DrawLine(GameObject moving)
+    bool CanDrawLine()
     {
         // Find a target in range
         RaycastHit hit;
-
-        if (Physics.Raycast(moving.transform.position, Vector2.up, out hit, maxDistance: linkRange))
+        
+        if (Physics.Raycast(transform.position, Vector2.up, out hit, maxDistance: linkRange))
         {
             if (hit.transform.gameObject.tag == baseTag || hit.transform.gameObject.tag == nodeTag)
             {
-
+                StartCoroutine(DrawLine(transform.position, hit.transform.position, Color.red, 0));
+                return true;
             }
         }
-        else if (Physics.Raycast(moving.transform.position, Vector2.left, out hit, maxDistance: linkRange))
+        else if (Physics.Raycast(transform.position, Vector2.left, out hit, maxDistance: linkRange))
         {
             if (hit.transform.gameObject.tag == nodeTag)
             {
-
+                // Firing a ray to the left and hitting means that this is a right child
+                StartCoroutine(DrawLine(transform.position, hit.transform.position, Color.red, 2));
+                return true;
             }
         }
-        else if (Physics.Raycast(moving.transform.position, Vector2.right, out hit, maxDistance: linkRange))
+        else if (Physics.Raycast(transform.position, Vector2.right, out hit, maxDistance: linkRange))
         {
             if (hit.transform.gameObject.tag == nodeTag)
             {
-
+                // Firing a ray to the right and hitting means that this is a left child
+                StartCoroutine(DrawLine(transform.position, hit.transform.position, Color.red, 1));
+                return true;
             }
         }
+
+        return false;
+    }
+
+    IEnumerator DrawLine(Vector3 start, Vector3 end, Color color, int position)
+    {
+        if (lines[position] != null)
+        {
+            GameObject.Destroy(lines[position]);
+            lines[position] = null;
+        }
+
+        lines[position] = new GameObject();
+        lines[position].transform.position = start;
+        lines[position].AddComponent<LineRenderer>();
+        LineRenderer lr = lines[position].GetComponent<LineRenderer>();
+        lr.SetColors(color, color);
+        lr.SetWidth(0.1f, 0.1f);
+        lr.SetPosition(0, start);
+        lr.SetPosition(1, end);
+        yield return null;
     }
 }
