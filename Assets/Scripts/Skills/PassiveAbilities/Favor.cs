@@ -15,7 +15,15 @@ public class Favor : Strip {
         base.Init();
     }
 
+    
+    /* Action hooks
+     * 
+     * The general action hook is meant to ambiently change the state of the blackboard only
+     * Specific action hooks are added for each 
+     */
 
+
+    
     /* Preconditions
      */
     // Check who has more favor
