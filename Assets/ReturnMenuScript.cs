@@ -13,5 +13,8 @@ public class ReturnMenuScript : MonoBehaviour {
 		if (Input.GetKeyDown (KeyCode.Q)) {
 			Application.LoadLevel ("Menu");
 		}
+		if (Input.GetKeyDown (KeyCode.Escape)) {
+			Application.Quit ();
+		}
 	}
 }
